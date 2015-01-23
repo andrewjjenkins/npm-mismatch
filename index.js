@@ -79,4 +79,6 @@ async.waterfall([
 );
 */
 
-git.clone('underscore', 'https://github.com/jashkenas/underscore.git', lcb(function () {}));
+git.ensureCloned('underscore', 'https://github.com/jashkenas/underscore.git', lcb(function () {}));
+git.tags('underscore', lcb(function () {}));
+git.checkoutTag('underscore', '1.3.3', lcb(function () {}));
