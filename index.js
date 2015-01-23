@@ -1,63 +1,82 @@
 'use strict';
 
+var assert = require('assert');
+var util = require('util');
 var pkgInfo = require('./lib/pkgInfo.js');
 var dependedUpon = require('./lib/dependedUpon.js');
 var git = require('./lib/git.js');
 var random = require('./lib/random.js');
+var compare = require('./lib/compare.js');
 var async = require('async');
 var log = require('winston');
 
 log.cli();
-log.level = 'debug'
-var PACKAGES = 2, VERSIONS = 2, RANDOMSEED="hello";
+log.level = 'debug';
+var PACKAGES = parseInt(process.env.PACKAGES) || 100,
+    VERSIONS = parseInt(process.env.VERSIONS) || 10,
+    RANDOMSEED = process.env.RANDOMSEED || "hello";
 
 random.seed(RANDOMSEED);
 
-function lcb(cb) {
-  return function (err, result) {
-    if (err) {
-      log.error('Error:', err);
-    }
-    log.info('Result:', result);
-    cb(err, result);
-  };
+function start(cb) {
+  log.info('***** Starting scan of top %d packages, %d versions *****',
+           PACKAGES, VERSIONS);
+  log.info('***** seed: %s *****', RANDOMSEED);
+  cb();
 }
 
 function getMostDependedUpon(cb) {
   dependedUpon.most(PACKAGES, function (err, du) {
     if (err) return cb(err);
-    return cb(null, du.map(function (val) { return val.name; }));
+    var mostDependedUpon = du.map(function (val) { return val.name; });
+    return cb(err, mostDependedUpon);
   });
 }
 
-function getVersionsForEachPackage(pkgs, cb) {
-  var pkgVers = {};
-
-  var failed;
-  async.each(pkgs,
-    function (pkg, cb) {
-      pkgInfo.versions(pkg, function (err, res) {
-        if (err) return cb(err);
-        log.debug('Adding info for package %s:', pkg, res);
-        pkgVers[pkg] = res;
-        cb();
-      });
-    },
-    function (err) {
-      if (err) return cb(err);
-      return cb(null, pkgVers);
+function compareVersions(pkgs, cb) {
+  async.mapSeries(pkgs, function (pkg, cb) {
+    log.info('=== Checking package %s ===', pkg);
+    compare.compare(pkg, VERSIONS, cb);
+  }, function (err, pkgDiffs) {
+    var diffs = {};
+    if (err) return cb(err);
+    assert.equal(pkgDiffs.length, pkgs.length);
+    for (var i = 0; i < pkgDiffs.length; ++i) {
+      var pkgName = pkgs[i];
+      diffs[pkgName] = pkgDiffs[i];
     }
-  );
+    cb(null, diffs);
+  });
 }
 
 async.waterfall([
-  getMostDependedUpon,
-  getVersionsForEachPackage,
-  function (pkgs, cb) { random.versionsForEachPackage(pkgs, VERSIONS, cb); },
-  ],
-  lcb(function () {})
-);
+    start,
+    getMostDependedUpon,
+    compareVersions,
+], function (err, diffs) {
+  if (err) throw err;
+  log.info('***** Complete, summarizing results *****');
+  var totalDiffsFound = 0;
+  Object.keys(diffs).forEach(function (pkg) {
+    var diffFound = false;
+    Object.keys(diffs[pkg]).forEach(function (ver) {
+      if (diffs[pkg][ver]) {
+        diffFound = true;
+        ++totalDiffsFound;
+      }
+    });
+    if (diffFound) {
+      log.warn('Found diff(s) in %s:', pkg);
+      util.inspect(diffs[pkg]).split('\n').forEach(function (line) {
+        log.warn(line);
+      });
+    } else {
+      log.info('Found no diffs in %d versions of %s', VERSIONS, pkg);
+    }
+  });
+  if (totalDiffsFound === 0) {
+    log.warn('Found no diffs in %d packages, %d versions',
+             PACKAGES, VERSIONS);
+  }
+});
 
-git.ensureCloned('underscore', 'https://github.com/jashkenas/underscore.git', lcb(function () {}));
-git.tags('underscore', lcb(function () {}));
-git.checkoutTag('underscore', '1.3.3', lcb(function () {}));
