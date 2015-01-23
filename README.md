@@ -101,16 +101,16 @@ Pretty big diff; 9322 lines in the top-level file.
  - It is possible that the top level machine generated and order is irrelevant?
    Maybe, but that still leaves thousands of changes inside of lib/ .
 
-    --- git/jade/lib/lexer.js       2015-01-23 18:55:39.945807999 +0000
-    +++ npm_installed/jade/0.28.2/node_modules/jade/lib/lexer.js    2012-11-05 16:55:09.000000000 +0000
-    .... Here is an interesting example ....
-    @@ -457,7 +455,7 @@
+   --- git/jade/lib/lexer.js       2015-01-23 18:55:39.945807999 +0000
+   +++ npm_installed/jade/0.28.2/node_modules/jade/lib/lexer.js    2012-11-05 16:55:09.000000000 +0000
+   .... Here is an interesting example ....
+   @@ -457,7 +455,7 @@
 
-       each: function() {
-         var captures;
-    -    if (captures = /^(?:- *)?(?:each|for) +([a-zA-Z_$][\w$]*)(?: *, *([a-zA-Z_$][\w$]*))? * in *([^\n]+)/.exec(this.input)) {
-    +    if (captures = /^(?:- *)?(?:each|for) +(\w+)(?: *, *(\w+))? * in *([^\n]+)/.exec(this.input)) {
-           this.consume(captures[0].length);
-           var tok = this.tok('each', captures[1]);
-           tok.key = captures[2] || '$index';
+      each: function() {
+        var captures;
+   -    if (captures = /^(?:- *)?(?:each|for) +([a-zA-Z_$][\w$]*)(?: *, *([a-zA-Z_$][\w$]*))? * in *([^\n]+)/.exec(this.input)) {
+   +    if (captures = /^(?:- *)?(?:each|for) +(\w+)(?: *, *(\w+))? * in *([^\n]+)/.exec(this.input)) {
+          this.consume(captures[0].length);
+          var tok = this.tok('each', captures[1]);
+          tok.key = captures[2] || '$index';
 
