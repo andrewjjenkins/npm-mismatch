@@ -67,8 +67,12 @@ async.waterfall([
     });
     if (diffFound) {
       log.warn('Found diff(s) in %s:', pkg);
-      util.inspect(diffs[pkg]).split('\n').forEach(function (line) {
-        log.warn(line);
+      Object.keys(diffs[pkg]).forEach(function (ver) {
+        if (diffs[pkg][ver].length === 0) { return; }
+        log.warn('Found diff(s) in %s@%s', pkg, ver);
+        diffs[pkg][ver].split('\n').forEach(function(line) {
+          log.warn(line);
+        });
       });
     } else {
       log.info('Found no diffs in %d versions of %s', VERSIONS, pkg);
@@ -79,4 +83,3 @@ async.waterfall([
              PACKAGES, VERSIONS);
   }
 });
-
