@@ -1,5 +1,8 @@
+'use strict';
+
 var pkgInfo = require('./lib/pkgInfo.js');
 var dependedUpon = require('./lib/dependedUpon.js');
+var git = require('./lib/git.js');
 var async = require('async');
 var log = require('winston');
 var seedrandom = require('seedrandom');
@@ -66,21 +69,7 @@ function getRandomVersionsForEachPackage(pkgs, cb) {
   cb(null, newPkgs);
 }
 
-
 /*
-async.series([
-  function (cb) { getMostDependedUpon(lcb(cb)); },
-  function (cb) { pkgInfo.versions('async', lcb(cb)); },
-  function (cb) { pkgInfo.versions('express', lcb(cb)); },
-  function (cb) { pkgInfo.repository('express', lcb(cb)); },
-  function (cb) { pkgInfo.repository('async', lcb(cb)); },
-  function (cb) { dependedUpon.most(lcb(cb)); },
-],
-function (err, result) {
-  log.info('done');
-});
-*/
-
 async.waterfall([
   getMostDependedUpon,
   getVersionsForEachPackage,
@@ -88,3 +77,6 @@ async.waterfall([
   ],
   lcb(function () {})
 );
+*/
+
+git.clone('underscore', 'https://github.com/jashkenas/underscore.git', lcb(function () {}));
