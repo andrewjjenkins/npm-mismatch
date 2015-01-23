@@ -2,10 +2,13 @@ var pkgInfo = require('./lib/pkgInfo.js');
 var dependedUpon = require('./lib/dependedUpon.js');
 var async = require('async');
 var log = require('winston');
+var seedrandom = require('seedrandom');
 
 log.cli();
 log.level = 'debug'
-var PACKAGES = 10, VERSIONS = 10;
+var PACKAGES = 2, VERSIONS = 2, RANDOMSEED="hello";
+
+var rng = seedrandom(RANDOMSEED);
 
 function lcb(cb) {
   return function (err, result) {
@@ -44,6 +47,25 @@ function getVersionsForEachPackage(pkgs, cb) {
   );
 }
 
+function durstenfeldShuffle(a) {
+  for (var i = a.length - 1; i > 0; --i) {
+    var j = Math.floor(rng() * (i + 1));
+    var aj = a[j], ai = a[i];
+    a[i] = aj;
+    a[j] = ai;
+  }
+}
+
+function getRandomVersionsForEachPackage(pkgs, cb) {
+  var newPkgs = {};
+  Object.keys(pkgs).forEach(function (pkgName) {
+    var newVersions = pkgs[pkgName].slice();
+    durstenfeldShuffle(newVersions);
+    newPkgs[pkgName] = newVersions.slice(0, VERSIONS);
+  });
+  cb(null, newPkgs);
+}
+
 
 /*
 async.series([
@@ -62,6 +84,7 @@ function (err, result) {
 async.waterfall([
   getMostDependedUpon,
   getVersionsForEachPackage,
+  getRandomVersionsForEachPackage,
   ],
   lcb(function () {})
 );
