@@ -79,38 +79,3 @@ Small diff that removes an arg validation (when you npm install it).
          return console.log(generator.help());
        }
 
-## jade@0.24.0 vs github.com/jadejs/jade (0.32.0 tag)
-
-Pretty big diff; 9322 lines in the top-level file.
-
-    Readme.md            |   74
-    Readme_zh-cn.md      | 1041 +----
-    bin/jade             |   38
-    jade.js              | 9322 +++++++++++++--------------------------------------
-    lib/compiler.js      |  251 -
-    lib/filters.js       |  114
-    lib/jade.js          |   35
-    lib/lexer.js         |   77
-    lib/nodes/literal.js |    5
-    lib/parser.js        |  113
-    lib/runtime.js       |   31
-    lib/utils.js         |   47
-    runtime.js           |   41
-    13 files changed, 3277 insertions(+), 7912 deletions(-)
-
- - It is possible that the top level machine generated and order is irrelevant?
-   Maybe, but that still leaves thousands of changes inside of lib/ .
-
-   --- git/jade/lib/lexer.js       2015-01-23 18:55:39.945807999 +0000
-   +++ npm_installed/jade/0.28.2/node_modules/jade/lib/lexer.js    2012-11-05 16:55:09.000000000 +0000
-   .... Here is an interesting example ....
-   @@ -457,7 +455,7 @@
-
-      each: function() {
-        var captures;
-   -    if (captures = /^(?:- *)?(?:each|for) +([a-zA-Z_$][\w$]*)(?: *, *([a-zA-Z_$][\w$]*))? * in *([^\n]+)/.exec(this.input)) {
-   +    if (captures = /^(?:- *)?(?:each|for) +(\w+)(?: *, *(\w+))? * in *([^\n]+)/.exec(this.input)) {
-          this.consume(captures[0].length);
-          var tok = this.tok('each', captures[1]);
-          tok.key = captures[2] || '$index';
-
