@@ -1,0 +1,16 @@
+{
+  "name": "npm-mismatch",
+  "version": "1.0.0",
+  "description": "Finds npm modules with source that doesn't match what is on github",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Andrew Jenkins <andrewj@f5.com>",
+  "license": "BSD",
+  "dependencies": {
+    "async": "^0.9.0",
+    "npm": "^2.2.0",
+    "winston": "^0.8.3"
+  }
+}
